@@ -19,11 +19,10 @@ void apply_theme() {
 }
 
 void Screen(*Router router, string route) {
-    List<String> params;
-    defer route_params_free(&params);
-    // The name is taken from the route itself, which the router keeps while the screen is on
-    // the stack: the params are freed when this returns, before the screen's blocks run.
-    if (route_match("/packages/:name", route, &params)) { DetailScreen(router, &route[strlen("/packages/")]); }
+    // route_param keeps the name as long as the route is on the stack, so the screen's blocks
+    // can use it when they render again on their own.
+    string name = route_param("/packages/:name", route, 0);
+    if (name != null) { DetailScreen(router, name); }
     else if (strcmp(route, "/packages") == 0) { PackagesScreen(router); }
     else if (strcmp(route, "/settings") == 0) { SettingsScreen(router); }
     else { HomeScreen(router); }
