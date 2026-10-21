@@ -25,7 +25,7 @@ int tab_of(string route) {
 
 void BottomTabs(*Router router) {
     int current = tab_of(router.path());
-    Row(Style{background: kit.surface, border_width: 0, gap: 0, padding: 6}, void() {
+    Row(Style{background: kit.surface, border_width: 0, gap: 0, padding: 6}) {
         for (i in 0..kTabs) {
             AppTab t = tab(i);
             bool on = i == current;
@@ -33,29 +33,29 @@ void BottomTabs(*Router router) {
                             label: t.title}, void() {
                 // The tab's own screen; again on the current tab, back to its top.
                 router.reset(t.route);
-            }, void() {
+            }) {
                 TextWith(Style{font_size: 22, color: on ? kit.primary : kit.muted}, t.icon);
                 TextWith(Style{font_size: 12, font_weight: on ? 700 : 500, color: on ? kit.primary : kit.muted}, t.title);
-            });
+            }
         }
-    });
+    }
     // The home indicator's room, when the app draws edge to edge.
-    Row(Style{height: ui_insets().bottom, background: kit.surface}, void() {});
+    Row(Style{height: ui_insets().bottom, background: kit.surface}) {}
 }
 
 // A tab's screen: it scrolls, starts under the status bar (the app draws edge to edge) and
 // pads its content.
 void Page(escaping fn()->void content) {
-    Scroll(Style{grow: 1, gap: 0, background: kit.page}, void() {
-        Row(Style{height: ui_insets().top}, void() {});
+    Scroll(Style{grow: 1, gap: 0, background: kit.page}) {
+        Row(Style{height: ui_insets().top}) {}
         Column(Style{padding: 20, gap: 18}, content);
-    });
+    }
 }
 
 // A screen's title, large, with an optional line above it.
 void ScreenTitle(string eyebrow, string title) {
-    Column(Style{gap: 2}, void() {
+    Column(Style{gap: 2}) {
         if (eyebrow != null) { TextWith(Style{font_size: 15, color: kit.muted}, eyebrow); }
         TextWith(Style{font_size: 34, font_weight: 800, color: kit.ink}, title);
-    });
+    }
 }

@@ -7,7 +7,7 @@ void ui_app_start(int which) {
     // this before the first frame.
     ui_edge_policy = 1;
     model_start();
-    ui_mount(void() { App(); });
+    ui_mount() { App(); }
 }
 
 void ui_app_stop() { model_stop(); }

@@ -66,7 +66,7 @@ int main() {
 
     Ui runtime;
     ui_init(&runtime, record);
-    ui_mount(void() { App(); });
+    ui_mount() { App(); }
     ui_frame();
     check(shows("Starter") && shows("Make it yours"), "Home");
     check(shows("Home") && shows("Packages") && shows("Settings"), "the tabs");

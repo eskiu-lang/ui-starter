@@ -4,21 +4,21 @@ import <ui>;
 import <ui/kit>;
 
 void SettingsScreen(*Router router) {
-    Page(void() {
+    Page() {
         ScreenTitle(null, "Settings");
-        Card(void() {
+        Card() {
             TextWith(Style{font_size: 15, font_weight: 600, color: kit.muted}, "Appearance");
             SegmentedControl("System\nLight\nDark", model.theme.get(), void(int i) { model_set_theme(i); });
             TextWith(Style{font_size: 14, color: kit.muted},
                 model.theme.get() == ThemeSystem ? "Follows the system's light or dark appearance." : "Saved on this device.");
-        });
-        Card(void() {
+        }
+        Card() {
             TextWith(Style{font_size: 15, font_weight: 600, color: kit.muted}, "About");
             String platform;
             defer String_free(&platform);
             String_format(&platform, "Running on %s", ui_platform_name());
-            ListItem("Starter 0.1.0", platform.data, void() {});
-            ListItem("Built with eskiu-lang/ui", "github.com/eskiu-lang/ui", void() { ui_open_url("https://github.com/eskiu-lang/ui"); });
-        });
-    });
+            ListItem("Starter 0.1.0", platform.data) {}
+            ListItem("Built with eskiu-lang/ui", "github.com/eskiu-lang/ui") { ui_open_url("https://github.com/eskiu-lang/ui"); }
+        }
+    }
 }

@@ -30,13 +30,13 @@ void Screen(*Router router, string route) {
 
 void App() {
     apply_theme();
-    Column(Style{grow: 1, background: kit.page, gap: 0}, void() {
+    Column(Style{grow: 1, background: kit.page, gap: 0}) {
         StatusBar(kit.dark ? BarLight : BarDark, false);
-        Column(Style{grow: 1, gap: 0}, void() {
+        Column(Style{grow: 1, gap: 0}) {
             Navigator(model.router, void(string route) { Screen(model.router, route); });
-        });
+        }
         Separator();
         BottomTabs(model.router);
         ToastHost();
-    });
+    }
 }

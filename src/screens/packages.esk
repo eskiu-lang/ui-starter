@@ -22,10 +22,10 @@ void PackageCard(*Router router, int i) {
         defer String_free(&route);
         String_format(&route, "/packages/%s", name);
         router.push(route.data);
-    }, void() {
-        Row(Style{align: AlignCenter}, void() {
+    }) {
+        Row(Style{align: AlignCenter}) {
             Row(Style{width: 40, height: 40, radius: 12, background: package_color(name), align: AlignCenter,
-                      justify: JustifyCenter}, void() {
+                      justify: JustifyCenter}) {
                 char[2] first;
                 first[0] = name[0] == '.' ? name[1] : name[0]; first[1] = 0;
                 if (first[0] >= 'a' && first[0] <= 'z') { first[0] = first[0] - 32; }
@@ -33,47 +33,47 @@ void PackageCard(*Router router, int i) {
                 defer String_free(&initial);
                 String_from(&initial, (string)&first[0]);
                 TextWith(Style{font_size: 18, font_weight: 800, color: rgb(255, 255, 255)}, initial.data);
-            });
-            Row(Style{grow: 1}, void() {});
+            }
+            Row(Style{grow: 1}) {}
             String stars;
             defer String_free(&stars);
             String_format(&stars, "★ %d", repo.stars);
             TextWith(Style{font_size: 13, font_weight: 600, color: kit.muted}, stars.data);
-        });
+        }
         TextWith(Style{font_size: 16, font_weight: 700, color: kit.ink}, name);
         TextWith(Style{font_size: 13, color: kit.muted}, repo.description.len > 0 ? repo.description.data : "No description");
-    });
+    }
 }
 
 void PackagesScreen(*Router router) {
-    Column(Style{grow: 1, background: kit.page, gap: 0}, void() {
+    Column(Style{grow: 1, background: kit.page, gap: 0}) {
         int load = model.load.get();
         model.repos_version.get();
         // The first time the screen shows, the list loads.
         use_mount(void() { if (model.load.value == LoadIdle) { model_load_repos(); } }, void() {});
-        RefreshControl(load == LoadBusy && model.repos.size > 0, void() { model_load_repos(); });
-        Scroll(Style{grow: 1, gap: 0}, void() {
-            Row(Style{height: ui_insets().top}, void() {});
-            Column(Style{padding: 20, gap: 12}, void() {
+        RefreshControl(load == LoadBusy && model.repos.size > 0) { model_load_repos(); }
+        Scroll(Style{grow: 1, gap: 0}) {
+            Row(Style{height: ui_insets().top}) {}
+            Column(Style{padding: 20, gap: 12}) {
                 ScreenTitle("eskiu-lang on GitHub", "Packages");
                 if (load == LoadFailed) {
-                    Card(void() {
+                    Card() {
                         TextWith(Style{font_size: 17, font_weight: 700, color: kit.ink}, "Could not load the packages");
                         TextWith(Style{font_size: 15, color: kit.muted}, model.error.data == null ? "" : model.error.data);
-                        KitButton("Try again", VariantPrimary, void() { model_load_repos(); });
-                    });
+                        KitButton("Try again", VariantPrimary) { model_load_repos(); }
+                    }
                 } else if (model.repos.size == 0) {
-                    Row(Style{padding: 40, justify: JustifyCenter}, void() { ActivityIndicator(Style{}, true); });
+                    Row(Style{padding: 40, justify: JustifyCenter}) { ActivityIndicator(Style{}, true); }
                 }
                 // Two cards a row, sharing it: a row stretches both to the taller.
                 for (int row = 0; row < model.repos.size; row += 2) {
-                    Row(Style{key: key(row), gap: 12}, void() {
+                    Row(Style{key: key(row), gap: 12}) {
                         PackageCard(router, row);
                         if (row + 1 < model.repos.size) { PackageCard(router, row + 1); }
                         else { Row(Style{width: 1, grow: 1}, void() {}); }
-                    });
+                    }
                 }
-            });
-        });
-    });
+            }
+        }
+    }
 }
