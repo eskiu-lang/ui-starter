@@ -1,0 +1,111 @@
+// The app with no device: the screens render into a recording host, routes change them, and
+// the network's answer is sent as the platform would. `eskiuc test` runs it; a failed check
+// exits with 1.
+import <io>;
+import <string>;
+import "../src/app.esk";
+
+// Every text the app shows now, by node: the commits' text ops, newest per node.
+List<String> texts;
+List<int> text_ids;
+
+void record(*uint8 data, int len) {
+    List<Mutation> items;
+    ui_decode(data, len, &items);
+    for (i in 0..items.size) {
+        Mutation m = items.data[i];
+        if (m.op == 3) {
+            bool found = false;
+            for (j in 0..text_ids.size) {
+                if (text_ids.data[j] == m.id) { String_from(&texts.data[j], m.text); found = true; }
+            }
+            if (!found) { String t; String_from(&t, m.text); texts.push(t); text_ids.push(m.id); }
+        } else if (m.op == 6) {
+            for (j in 0..text_ids.size) {
+                if (text_ids.data[j] == m.id) { String_clear(&texts.data[j]); }
+            }
+        }
+    }
+    items.free();
+    ui_complete(ui.sequence);
+}
+
+bool shows(string text) {
+    for (i in 0..texts.size) { if (String_eq_cstr(&texts.data[i], text) == 1) { return true; } }
+    return false;
+}
+
+void check(bool ok, string what) {
+    if (!ok) {
+        printf("FAIL %s\n", what);
+        exit(1);
+    }
+}
+
+const string kAnswer = "[{\"name\": \"ui\", \"description\": \"Native apps\", \"html_url\": \"https://github.com/eskiu-lang/ui\", \"stargazers_count\": 12},"
+    " {\"name\": \"gpu\", \"description\": null, \"html_url\": \"https://github.com/eskiu-lang/gpu\", \"stargazers_count\": 30},"
+    " {\"name\": \"camera\", \"description\": \"Photos\", \"html_url\": \"https://github.com/eskiu-lang/ui-camera\", \"stargazers_count\": 12}]";
+
+int main() {
+    // The JSON from GitHub: most starred first, ties in order, a null description empty.
+    List<Repo> parsed;
+    check(repos_parse(kAnswer, &parsed), "the answer parses");
+    check(parsed.size == 3 && String_eq_cstr(&parsed.data[0].name, "gpu") == 1 && String_eq_cstr(&parsed.data[1].name, "ui") == 1 &&
+          String_eq_cstr(&parsed.data[2].name, "camera") == 1, "most starred first, ties in order");
+    check(parsed.data[0].description.len == 0 && parsed.data[0].stars == 30, "a null description");
+    repos_clear(&parsed);
+    parsed.free();
+    check(!repos_parse("{\"message\": \"rate limited\"}", &parsed), "an object is not a list");
+    check(!repos_parse("not json", &parsed), "nor is text");
+
+    // The model as model_start makes it, without the saved theme.
+    model.router = router_new("/");
+    model.theme = signal_new<int>(ThemeSystem);
+    model.load = signal_new<int>(LoadIdle);
+    model.repos_version = signal_new<int>(0);
+
+    Ui runtime;
+    ui_init(&runtime, record);
+    ui_mount(void() { App(); });
+    ui_frame();
+    check(shows("Starter") && shows("Make it yours"), "Home");
+    check(shows("Home") && shows("Packages") && shows("Settings"), "the tabs");
+
+    // Packages: the list loads when the screen shows; the answer fills it.
+    model.router.reset("/packages");
+    ui_frame();
+    check(model.load.value == LoadBusy, "the list loads");
+    ui_event_fetch(ui.next_request, 200, kAnswer, "");
+    ui_frame();
+    check(model.load.value == LoadDone && shows("gpu") && shows("No description") && shows("Native apps"), "the packages");
+
+    model.router.push("/packages/ui");
+    ui_frame();
+    check(shows("★ 12") && shows("Open on GitHub"), "a package's screen");
+
+    // A failed load says why, and tries again.
+    model.router.reset("/packages");
+    ui_frame();
+    model_load_repos();
+    ui_frame();
+    ui_event_fetch(ui.next_request, 403, "{}", "");
+    ui_frame();
+    check(model.load.value == LoadFailed && shows("Could not load the packages") && shows("GitHub answered 403"), "a failed load");
+
+    model.router.reset("/settings");
+    ui_frame();
+    check(shows("Appearance") && shows("Follows the system's light or dark appearance."), "Settings");
+    model.theme.set(ThemeDark);
+    ui_frame();
+    check(kit.dark && shows("Saved on this device."), "the dark theme");
+
+    ui_shutdown();
+    repos_clear(&model.repos);
+    model.repos.free();
+    String_free(&model.error);
+    model.router.free(); model.theme.free(); model.load.free(); model.repos_version.free();
+    for (i in 0..texts.size) { String_free(&texts.data[i]); }
+    texts.free(); text_ids.free();
+    printf("PASS app\n");
+    return 0;
+}

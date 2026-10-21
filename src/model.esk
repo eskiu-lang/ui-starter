@@ -1,0 +1,119 @@
+// The app's state that outlives its screens: the router, the theme the user chose (saved), and
+// the packages loaded from the network. Screens read it through its signals.
+import <string>;
+import <list>;
+import <json>;
+import <ui>;
+
+enum ThemeMode { ThemeSystem, ThemeLight, ThemeDark }
+
+// A package of the Eskiu project on GitHub.
+struct Repo { String name; String description; String url; int stars; }
+
+// Loading the list: not started, in flight, loaded, or failed (with the reason in model.error).
+enum LoadState { LoadIdle, LoadBusy, LoadDone, LoadFailed }
+
+struct Model {
+    *Router router;
+    *Signal<int> theme;
+    *Signal<int> load;
+    *Signal<int> repos_version;
+    List<Repo> repos;
+    String error;
+}
+
+Model model;
+
+void model_start() {
+    model.router = router_new("/");
+    // The theme the user chose last time, or the system's.
+    string saved = ui_storage_get("theme");
+    model.theme = signal_new<int>(saved == null ? ThemeSystem : atoi(saved));
+    model.load = signal_new<int>(LoadIdle);
+    model.repos_version = signal_new<int>(0);
+}
+
+void repos_clear(List<Repo>* repos) {
+    for (i in 0..repos.size) {
+        String_free(&repos.data[i].name); String_free(&repos.data[i].description); String_free(&repos.data[i].url);
+    }
+    repos.clear();
+}
+
+void model_stop() {
+    repos_clear(&model.repos);
+    model.repos.free();
+    String_free(&model.error);
+    model.router.free();
+    model.theme.free();
+    model.load.free();
+    model.repos_version.free();
+}
+
+void model_set_theme(int mode) {
+    model.theme.set(mode);
+    String text;
+    defer String_free(&text);
+    String_format(&text, "%d", mode);
+    ui_storage_set("theme", text.data);
+}
+
+// GitHub's answer for the organization's repositories (a JSON array) into `out`, the most
+// starred first; false when it is not one.
+bool repos_parse(string body, List<Repo>* out) {
+    *JsonValue root = json_parse(body);
+    if (root == null) { return false; }
+    defer JsonValue_free(root);
+    if (JsonValue_kind(root) != JArray) { return false; }
+    for (i in 0..JsonValue_len(root)) {
+        *JsonValue item = JsonValue_at(root, i);
+        *JsonValue name = JsonValue_get(item, "name");
+        if (name == null || JsonValue_kind(name) != JString) { continue; }
+        Repo repo;
+        String_from(&repo.name, (string)JsonValue_as_cstr(name));
+        *JsonValue description = JsonValue_get(item, "description");
+        String_from(&repo.description, description != null && JsonValue_kind(description) == JString
+                                       ? (string)JsonValue_as_cstr(description) : "");
+        *JsonValue url = JsonValue_get(item, "html_url");
+        String_from(&repo.url, url != null && JsonValue_kind(url) == JString ? (string)JsonValue_as_cstr(url) : "");
+        *JsonValue stars = JsonValue_get(item, "stargazers_count");
+        repo.stars = stars != null && JsonValue_kind(stars) == JNumber ? (int)JsonValue_as_int(stars) : 0;
+        // Insertion keeps the most starred first, ties in GitHub's order.
+        int at = out.size;
+        while (at > 0 && out.data[at - 1].stars < repo.stars) { at--; }
+        out.insert(at, repo);
+    }
+    return true;
+}
+
+// Load the packages (again): the Packages screen shows the state as it goes.
+void model_load_repos() {
+    if (model.load.value == LoadBusy) { return; }
+    model.load.set(LoadBusy);
+    ui_fetch(FetchRequest{url: "https://api.github.com/orgs/eskiu-lang/repos?per_page=100",
+                          headers: "Accept: application/vnd.github+json", timeout_ms: 15000}, void(FetchResult result) {
+        String_clear(&model.error);
+        List<Repo> fresh;
+        if (result.status == 200 && repos_parse(result.body, &fresh)) {
+            repos_clear(&model.repos);
+            model.repos.free();
+            model.repos = fresh;
+            model.repos_version.set(model.repos_version.value + 1);
+            model.load.set(LoadDone);
+            return;
+        }
+        repos_clear(&fresh);
+        fresh.free();
+        if (result.status == 0) { String_from(&model.error, result.error == null ? "No connection" : result.error); }
+        else { String_format(&model.error, "GitHub answered %d", result.status); }
+        model.load.set(LoadFailed);
+    });
+}
+
+// The repository named `name`, or null.
+*Repo model_repo(string name) {
+    for (i in 0..model.repos.size) {
+        if (String_eq_cstr(&model.repos.data[i].name, name) == 1) { return &model.repos.data[i]; }
+    }
+    return null;
+}

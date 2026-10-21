@@ -1,0 +1,43 @@
+// The root: the theme, the screens of the current route, and the tabs under them. Routes:
+// "/" (Home), "/packages", "/packages/:name" and "/settings"; on the web they are the URL.
+import <string>;
+import <ui>;
+import <ui/kit>;
+import "model.esk";
+import "components/tabs.esk";
+import "screens/home.esk";
+import "screens/packages.esk";
+import "screens/detail.esk";
+import "screens/settings.esk";
+
+// The theme the user chose, or the system's appearance.
+void apply_theme() {
+    int mode = model.theme.get();
+    if (mode == ThemeLight) { kit = kit_light(); }
+    else if (mode == ThemeDark) { kit = kit_dark(); }
+    else { kit_follow_system(); }
+}
+
+void Screen(*Router router, string route) {
+    List<String> params;
+    defer route_params_free(&params);
+    // The name is taken from the route itself, which the router keeps while the screen is on
+    // the stack: the params are freed when this returns, before the screen's blocks run.
+    if (route_match("/packages/:name", route, &params)) { DetailScreen(router, &route[strlen("/packages/")]); }
+    else if (strcmp(route, "/packages") == 0) { PackagesScreen(router); }
+    else if (strcmp(route, "/settings") == 0) { SettingsScreen(router); }
+    else { HomeScreen(router); }
+}
+
+void App() {
+    apply_theme();
+    Column(Style{grow: 1, background: kit.page, gap: 0}, void() {
+        StatusBar(kit.dark ? BarLight : BarDark, false);
+        Column(Style{grow: 1, gap: 0}, void() {
+            Navigator(model.router, void(string route) { Screen(model.router, route); });
+        });
+        Separator();
+        BottomTabs(model.router);
+        ToastHost();
+    });
+}

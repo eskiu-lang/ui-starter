@@ -1,0 +1,13 @@
+// The app's start: the model and the root. `ui serve` runs it in the browser and rebuilds on
+// each change; `ui serve ios` and `ui serve android` do the same on a simulator or device.
+import "app.esk";
+
+void ui_app_start(int which) {
+    // Screens draw under the status bar and pad themselves from ui_insets(); the hosts read
+    // this before the first frame.
+    ui_edge_policy = 1;
+    model_start();
+    ui_mount(void() { App(); });
+}
+
+void ui_app_stop() { model_stop(); }

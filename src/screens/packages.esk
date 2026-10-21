@@ -1,0 +1,44 @@
+// Packages: the Eskiu project's repositories from GitHub's API, pulled again on refresh;
+// a row opens the package's screen.
+import <string>;
+import <ui>;
+import <ui/kit>;
+
+void PackagesScreen(*Router router) {
+    Column(Style{grow: 1, background: kit.page, gap: 0}, void() {
+        int load = model.load.get();
+        model.repos_version.get();
+        // The first time the screen shows, the list loads.
+        use_mount(void() { if (model.load.value == LoadIdle) { model_load_repos(); } }, void() {});
+        RefreshControl(load == LoadBusy && model.repos.size > 0, void() { model_load_repos(); });
+        Scroll(Style{grow: 1, gap: 0}, void() {
+            Row(Style{height: ui_insets().top}, void() {});
+            Column(Style{padding: 20, gap: 12}, void() {
+                ScreenTitle("eskiu-lang on GitHub", "Packages");
+                if (load == LoadFailed) {
+                    Card(void() {
+                        TextWith(Style{font_size: 17, font_weight: 700, color: kit.ink}, "Could not load the packages");
+                        TextWith(Style{font_size: 15, color: kit.muted}, model.error.data == null ? "" : model.error.data);
+                        KitButton("Try again", VariantPrimary, void() { model_load_repos(); });
+                    });
+                } else if (model.repos.size == 0) {
+                    Row(Style{padding: 40, justify: JustifyCenter}, void() { ActivityIndicator(Style{}, true); });
+                }
+                Column(Style{gap: 10}, void() {
+                    for (i in 0..model.repos.size) {
+                        *Repo repo = &model.repos.data[i];
+                        string name = repo.name.data;
+                        Column(Style{key: key(i), gap: 0}, void() {
+                            ListItem(name, repo.description.len > 0 ? repo.description.data : "No description", void() {
+                                String route;
+                                defer String_free(&route);
+                                String_format(&route, "/packages/%s", name);
+                                router.push(route.data);
+                            });
+                        });
+                    }
+                });
+            });
+        });
+    });
+}

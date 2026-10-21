@@ -1,0 +1,61 @@
+// The tab bar along the bottom: a tab per section, the current one in the theme's color. Each
+// tab is a route at the root of the stack; a tab's screens push on top of it.
+import <ui>;
+import <ui/kit>;
+
+struct AppTab { string route; string icon; string title; }
+
+const int kTabs = 3;
+
+// Each icon ends in U+FE0E, so the platforms draw it as text, in the tab's color, not as an emoji.
+AppTab tab(int i) {
+    if (i == 0) { return AppTab{"/", "⌂︎", "Home"}; }
+    if (i == 1) { return AppTab{"/packages", "▦︎", "Packages"}; }
+    return AppTab{"/settings", "⚙︎", "Settings"};
+}
+
+// The tab a route belongs to: the one whose route starts it.
+int tab_of(string route) {
+    for (int i = kTabs - 1; i > 0; i--) {
+        AppTab t = tab(i);
+        if (strncmp(route, t.route, strlen(t.route)) == 0) { return i; }
+    }
+    return 0;
+}
+
+void BottomTabs(*Router router) {
+    int current = tab_of(router.path());
+    Row(Style{background: kit.surface, border_width: 0, gap: 0, padding: 6}, void() {
+        for (i in 0..kTabs) {
+            AppTab t = tab(i);
+            bool on = i == current;
+            Pressable(Style{key: key(i), width: 1, grow: 1, padding: 8, gap: 2, align: AlignCenter, radius: 14,
+                            label: t.title}, void() {
+                // The tab's own screen; again on the current tab, back to its top.
+                router.reset(t.route);
+            }, void() {
+                TextWith(Style{font_size: 22, color: on ? kit.primary : kit.muted}, t.icon);
+                TextWith(Style{font_size: 12, font_weight: on ? 700 : 500, color: on ? kit.primary : kit.muted}, t.title);
+            });
+        }
+    });
+    // The home indicator's room, when the app draws edge to edge.
+    Row(Style{height: ui_insets().bottom, background: kit.surface}, void() {});
+}
+
+// A tab's screen: it scrolls, starts under the status bar (the app draws edge to edge) and
+// pads its content.
+void Page(escaping fn()->void content) {
+    Scroll(Style{grow: 1, gap: 0, background: kit.page}, void() {
+        Row(Style{height: ui_insets().top}, void() {});
+        Column(Style{padding: 20, gap: 18}, content);
+    });
+}
+
+// A screen's title, large, with an optional line above it.
+void ScreenTitle(string eyebrow, string title) {
+    Column(Style{gap: 2}, void() {
+        if (eyebrow != null) { TextWith(Style{font_size: 15, color: kit.muted}, eyebrow); }
+        TextWith(Style{font_size: 34, font_weight: 800, color: kit.ink}, title);
+    });
+}
