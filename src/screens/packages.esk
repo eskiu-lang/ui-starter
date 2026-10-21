@@ -4,6 +4,47 @@ import <string>;
 import <ui>;
 import <ui/kit>;
 
+// A tile's color from the package's name, so each keeps its own.
+int64 package_color(string name) {
+    int64[6] colors = {rgb(79, 70, 229), rgb(13, 148, 136), rgb(225, 29, 72), rgb(217, 119, 6), rgb(2, 132, 199), rgb(124, 58, 237)};
+    int sum = 0;
+    for (int i = 0; name[i] != 0; i++) { sum += name[i]; }
+    return colors[sum % 6];
+}
+
+// A package as a card: its initial on its color, its name, what it is and its stars.
+void PackageCard(*Router router, int i) {
+    *Repo repo = &model.repos.data[i];
+    string name = repo.name.data;
+    Pressable(Style{width: 1, grow: 1, padding: 14, gap: 8, radius: kit.radius + 6, background: kit.surface,
+                    border_width: 1, border_color: kit.line, label: name}, void() {
+        String route;
+        defer String_free(&route);
+        String_format(&route, "/packages/%s", name);
+        router.push(route.data);
+    }, void() {
+        Row(Style{align: AlignCenter}, void() {
+            Row(Style{width: 40, height: 40, radius: 12, background: package_color(name), align: AlignCenter,
+                      justify: JustifyCenter}, void() {
+                char[2] first;
+                first[0] = name[0] == '.' ? name[1] : name[0]; first[1] = 0;
+                if (first[0] >= 'a' && first[0] <= 'z') { first[0] = first[0] - 32; }
+                String initial;
+                defer String_free(&initial);
+                String_from(&initial, (string)&first[0]);
+                TextWith(Style{font_size: 18, font_weight: 800, color: rgb(255, 255, 255)}, initial.data);
+            });
+            Row(Style{grow: 1}, void() {});
+            String stars;
+            defer String_free(&stars);
+            String_format(&stars, "★ %d", repo.stars);
+            TextWith(Style{font_size: 13, font_weight: 600, color: kit.muted}, stars.data);
+        });
+        TextWith(Style{font_size: 16, font_weight: 700, color: kit.ink}, name);
+        TextWith(Style{font_size: 13, color: kit.muted}, repo.description.len > 0 ? repo.description.data : "No description");
+    });
+}
+
 void PackagesScreen(*Router router) {
     Column(Style{grow: 1, background: kit.page, gap: 0}, void() {
         int load = model.load.get();
@@ -24,20 +65,14 @@ void PackagesScreen(*Router router) {
                 } else if (model.repos.size == 0) {
                     Row(Style{padding: 40, justify: JustifyCenter}, void() { ActivityIndicator(Style{}, true); });
                 }
-                Column(Style{gap: 10}, void() {
-                    for (i in 0..model.repos.size) {
-                        *Repo repo = &model.repos.data[i];
-                        string name = repo.name.data;
-                        Column(Style{key: key(i), gap: 0}, void() {
-                            ListItem(name, repo.description.len > 0 ? repo.description.data : "No description", void() {
-                                String route;
-                                defer String_free(&route);
-                                String_format(&route, "/packages/%s", name);
-                                router.push(route.data);
-                            });
-                        });
-                    }
-                });
+                // Two cards a row, sharing it: a row stretches both to the taller.
+                for (int row = 0; row < model.repos.size; row += 2) {
+                    Row(Style{key: key(row), gap: 12}, void() {
+                        PackageCard(router, row);
+                        if (row + 1 < model.repos.size) { PackageCard(router, row + 1); }
+                        else { Row(Style{width: 1, grow: 1}, void() {}); }
+                    });
+                }
             });
         });
     });

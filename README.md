@@ -18,7 +18,7 @@ bottom, a stack of screens with links into them, a list loaded from the network 
 refresh, a setting saved on the device, light and dark themes, and tests that run without a
 phone. It is one codebase for iOS, Android and the web.
 
-![The starter on iOS (Home), Android (the packages from GitHub) and the web (a package, in the dark theme)](assets/starter.png)
+![The starter on iOS (Home), Android (the packages from GitHub as a grid, in the dark theme) and the web (Settings)](assets/starter.png)
 
 ## Start
 
@@ -45,7 +45,7 @@ emscripten for the web, Xcode for iOS and the Android SDK for Android.
 | `src/app.esk` | The root: the theme, the routes and their screens, the tabs. |
 | `src/model.esk` | The state that outlives the screens: the router, the saved theme, the packages from GitHub (`ui_fetch` and `<json>`). |
 | `src/components/tabs.esk` | The tab bar along the bottom, and the screens' large titles. |
-| `src/screens/` | Home, Packages (pull to refresh), a package's screen (a route with a parameter), Settings. |
+| `src/screens/` | Home, Packages (a grid of cards, pull to refresh), a package's screen (a route with a parameter), Settings. |
 | `tests/app.esk` | The JSON parsing, and the app rendered with no device: each screen, a load that works and one that fails, the dark theme. `eskiuc test` runs it. |
 | `ui.toml` | The app's name, id and link scheme. |
 
