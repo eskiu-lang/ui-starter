@@ -7,8 +7,8 @@ void Shortcut(*Router router, string icon, string title, string detail, string r
     Pressable(Style{width: 1, grow: 1, padding: 16, gap: 6, radius: kit.radius + 6, background: kit.surface,
                     border_width: 1, border_color: kit.line, label: title}, void() { router.reset(route); }) {
         TextWith(Style{font_size: 26, color: kit.primary}, icon);
-        TextWith(Style{font_size: 17, font_weight: 700, color: kit.ink}, title);
-        TextWith(Style{font_size: 14, color: kit.muted}, detail);
+        TextWith(Style{font_size: kit.body_size + 1, font_weight: 700, color: kit.ink}, title);
+        TextWith(Style{font_size: kit.secondary_size - 1, color: kit.muted}, detail);
     }
 }
 
@@ -20,7 +20,7 @@ void Step(int number, string text) {
             String_format(&digit, "%d", number);
             TextWith(Style{font_size: 14, font_weight: 700, color: kit.primary}, digit.data);
         }
-        TextWith(Style{grow: 1, font_size: 15, color: kit.ink}, text);
+        TextWith(Style{grow: 1, font_size: kit.secondary_size, color: kit.ink}, text);
     }
 }
 
@@ -28,9 +28,9 @@ void HomeScreen(*Router router) {
     Page() {
         ScreenTitle("Welcome to", "Starter");
         Column(Style{padding: 22, gap: 8, radius: 24, background: kit.primary, shadow: 10}) {
-            TextWith(Style{font_size: 13, font_weight: 700, color: rgba(255, 255, 255, 190)}, "ONE CODEBASE");
-            TextWith(Style{font_size: 26, font_weight: 800, color: kit.on_primary}, "iOS, Android and the web");
-            TextWith(Style{font_size: 15, color: rgba(255, 255, 255, 215)},
+            TextWith(Style{font_size: kit.caption_size, font_weight: 700, color: rgba(255, 255, 255, 190)}, "ONE CODEBASE");
+            TextWith(Style{font_size: kit.heading_size + 8, font_weight: 800, color: kit.on_primary}, "iOS, Android and the web");
+            TextWith(Style{font_size: kit.secondary_size, color: rgba(255, 255, 255, 215)},
                 "Native views on the phone, the DOM in the browser, all from the Eskiu in src/.");
         }
         Row(Style{gap: 12}) {

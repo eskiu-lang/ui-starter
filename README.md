@@ -16,7 +16,9 @@
 `ui new` makes an app with one screen. This one has what most apps grow into: tabs along the
 bottom, a stack of screens with links into them, a list loaded from the network with pull to
 refresh, a setting saved on the device, light and dark themes, and tests that run without a
-phone. It is one codebase for iOS, Android and the web.
+phone. It is one codebase for iOS, Android and the web. In a wide window (a tablet, or a
+browser on a computer) the tabs become a sidebar, the content is centered and the kit's text
+and controls are denser, so the web build looks like a web app.
 
 ![The starter on iOS (Home), Android (the packages from GitHub as a grid, in the dark theme) and the web (Settings)](assets/starter.png)
 
@@ -44,7 +46,7 @@ emscripten for the web, Xcode for iOS and the Android SDK for Android.
 | `src/main.esk` | The start: the model, then the root. |
 | `src/app.esk` | The root: the theme, the routes and their screens, the tabs. |
 | `src/model.esk` | The state that outlives the screens: the router, the saved theme, the packages from GitHub (`ui_fetch` and `<json>`). |
-| `src/components/tabs.esk` | The tab bar along the bottom, and the screens' large titles. |
+| `src/components/tabs.esk` | The tab bar along the bottom, the sidebar of a wide window, the screens' pages and large titles. |
 | `src/screens/` | Home, Packages (a grid of cards, pull to refresh), a package's screen (a route with a parameter), Settings. |
 | `tests/app.esk` | The JSON parsing, and the app rendered with no device: each screen, a load that works and one that fails, the dark theme. `eskiuc test` runs it. |
 | `ui.toml` | The app's name, id and link scheme. |

@@ -1,4 +1,5 @@
-// The root: the theme, the screens of the current route, and the tabs under them. Routes:
+// The root: the theme, the screens of the current route, and the tabs under them (a sidebar
+// beside them in a wide window). Routes:
 // "/" (Home), "/packages", "/packages/:name" and "/settings"; on the web they are the URL.
 import <string>;
 import <ui>;
@@ -13,8 +14,8 @@ import "screens/settings.esk";
 // The theme the user chose, or the system's appearance.
 void apply_theme() {
     int mode = model.theme.get();
-    if (mode == ThemeLight) { kit = kit_light(); }
-    else if (mode == ThemeDark) { kit = kit_dark(); }
+    if (mode == ThemeLight) { kit = kit_light(); kit_follow_window(); }
+    else if (mode == ThemeDark) { kit = kit_dark(); kit_follow_window(); }
     else { kit_follow_system(); }
 }
 
@@ -32,11 +33,22 @@ void App() {
     apply_theme();
     Column(Style{grow: 1, background: kit.page, gap: 0}) {
         StatusBar(kit.dark ? BarLight : BarDark, false);
-        Column(Style{grow: 1, gap: 0}) {
-            Navigator(model.router, void(string route) { Screen(model.router, route); });
+        if (ui_wide()) {
+            // A tablet or a computer: the sections in a sidebar beside the screens.
+            Row(Style{grow: 1, gap: 0}) {
+                Sidebar(model.router);
+                VSeparator();
+                Column(Style{grow: 1, gap: 0}) {
+                    Navigator(model.router, void(string route) { Screen(model.router, route); });
+                }
+            }
+        } else {
+            Column(Style{grow: 1, gap: 0}) {
+                Navigator(model.router, void(string route) { Screen(model.router, route); });
+            }
+            Separator();
+            BottomTabs(model.router);
         }
-        Separator();
-        BottomTabs(model.router);
         ToastHost();
     }
 }

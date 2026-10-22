@@ -38,9 +38,9 @@ void PackageCard(*Router router, int i) {
             String stars;
             defer String_free(&stars);
             String_format(&stars, "★ %d", repo.stars);
-            TextWith(Style{font_size: 13, font_weight: 600, color: kit.muted}, stars.data);
+            TextWith(Style{font_size: kit.caption_size, font_weight: 600, color: kit.muted}, stars.data);
         }
-        TextWith(Style{font_size: 16, font_weight: 700, color: kit.ink}, name);
+        TextWith(Style{font_size: kit.body_size, font_weight: 700, color: kit.ink}, name);
         Caption(repo.description.len > 0 ? repo.description.data : "No description");
     }
 }
@@ -54,23 +54,26 @@ void PackagesScreen(*Router router) {
         RefreshControl(load == LoadBusy && model.repos.size > 0) { model_load_repos(); }
         Scroll(Style{grow: 1, gap: 0}) {
             Row(Style{height: ui_insets().top}) {}
-            Column(Style{padding: 20, gap: 12}) {
+            PageBody(12) {
                 ScreenTitle("eskiu-lang on GitHub", "Packages");
                 if (load == LoadFailed) {
                     Card() {
-                        TextWith(Style{font_size: 17, font_weight: 700, color: kit.ink}, "Could not load the packages");
+                        TextWith(Style{font_size: kit.heading_size - 1, font_weight: 700, color: kit.ink}, "Could not load the packages");
                         Secondary(model.error.data == null ? "" : model.error.data);
                         KitButton("Try again", VariantPrimary) { model_load_repos(); }
                     }
                 } else if (model.repos.size == 0) {
                     Row(Style{padding: 40, justify: JustifyCenter}) { ActivityIndicator(Style{}, true); }
                 }
-                // Two cards a row, sharing it: a row stretches both to the taller.
-                for (int row = 0; row < model.repos.size; row += 2) {
+                // Two cards a row (three in a wide window), sharing it: a row stretches them to
+                // the tallest.
+                int per_row = ui_wide() ? 3 : 2;
+                for (int row = 0; row < model.repos.size; row += per_row) {
                     Row(Style{key: key(row), gap: 12}) {
-                        PackageCard(router, row);
-                        if (row + 1 < model.repos.size) { PackageCard(router, row + 1); }
-                        else { Row(Style{width: 1, grow: 1}, void() {}); }
+                        for (j in 0..per_row) {
+                            if (row + j < model.repos.size) { PackageCard(router, row + j); }
+                            else { Row(Style{width: 1, grow: 1}) {} }
+                        }
                     }
                 }
             }

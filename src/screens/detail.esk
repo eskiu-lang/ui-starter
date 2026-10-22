@@ -13,29 +13,31 @@ void DetailScreen(*Router router, string name) {
         model.repos_version.get();
         int load = model.load.get();
         *Repo repo = model_repo(name);
-        Scroll(Style{grow: 1, padding: 20, gap: 16}) {
-            if (repo == null) {
-                if (load == LoadBusy) { Row(Style{padding: 40, justify: JustifyCenter}, void() { ActivityIndicator(Style{}, true); }); }
-                else { TextWith(Style{font_size: 16, color: kit.muted}, "This package is not in the list."); }
-                return;
-            }
-            string url = repo.url.data;
-            Card() {
-                Row(Style{gap: 12, align: AlignCenter}) {
-                    Avatar(name, 48);
-                    Column(Style{grow: 1, gap: 2}) {
-                        TextWith(Style{font_size: 20, font_weight: 800, color: kit.ink}, name);
-                        TextWith(Style{font_size: 14, color: kit.muted}, "eskiu-lang");
-                    }
-                    String stars;
-                    defer String_free(&stars);
-                    String_format(&stars, "★ %d", repo.stars);
-                    Badge(stars.data, TonePrimary);
+        Scroll(Style{grow: 1, gap: 0}) {
+            PageBody(16) {
+                if (repo == null) {
+                    if (load == LoadBusy) { Row(Style{padding: 40, justify: JustifyCenter}, void() { ActivityIndicator(Style{}, true); }); }
+                    else { TextWith(Style{font_size: kit.body_size, color: kit.muted}, "This package is not in the list."); }
+                    return;
                 }
-                Body(repo.description.len > 0 ? repo.description.data : "No description.");
+                string url = repo.url.data;
+                Card() {
+                    Row(Style{gap: 12, align: AlignCenter}) {
+                        Avatar(name, 48);
+                        Column(Style{grow: 1, gap: 2}) {
+                            TextWith(Style{font_size: kit.heading_size + 2, font_weight: 800, color: kit.ink}, name);
+                            TextWith(Style{font_size: kit.secondary_size - 1, color: kit.muted}, "eskiu-lang");
+                        }
+                        String stars;
+                        defer String_free(&stars);
+                        String_format(&stars, "★ %d", repo.stars);
+                        Badge(stars.data, TonePrimary);
+                    }
+                    Body(repo.description.len > 0 ? repo.description.data : "No description.");
+                }
+                KitButton("Open on GitHub", VariantPrimary) { ui_open_url(url); }
+                KitButton("Share", VariantSecondary) { ui_share("An Eskiu package", url); }
             }
-            KitButton("Open on GitHub", VariantPrimary) { ui_open_url(url); }
-            KitButton("Share", VariantSecondary) { ui_share("An Eskiu package", url); }
         }
     }
 }

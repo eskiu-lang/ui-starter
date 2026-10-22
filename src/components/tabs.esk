@@ -43,12 +43,50 @@ void BottomTabs(*Router router) {
     Row(Style{height: ui_insets().bottom, background: kit.surface}) {}
 }
 
+// A section in the sidebar: its icon and name, the current one in the theme's color, and a
+// shade under the pointer.
+void SidebarItem(*Router router, int i, bool on) {
+    AppTab t = tab(i);
+    Scope("SidebarItem", key(i)) {
+        *Signal<bool> over = use_signal<bool>(false);
+        ui_on_hover(void(bool inside) { over.set(inside); });
+        Pressable(Style{padding: 10, radius: kit.radius - 2, label: t.title,
+                        background: on ? kit.primary_soft : over.get() ? kit.track : -1}, void() { router.reset(t.route); }) {
+            Row(Style{gap: 10, align: AlignCenter}) {
+                TextWith(Style{font_size: kit.body_size + 2, color: on ? kit.primary : kit.muted}, t.icon);
+                TextWith(Style{font_size: kit.body_size, font_weight: on ? 700 : 500, color: on ? kit.primary : kit.ink}, t.title);
+            }
+        }
+    }
+}
+
+// The sections down the side of a wide window, in place of the tab bar.
+void Sidebar(*Router router) {
+    int current = tab_of(router.path());
+    Column(Style{width: 232, background: kit.surface, padding: 12, gap: 2}) {
+        Row(Style{height: ui_insets().top}) {}
+        Row(Style{padding: 12}) { Heading("Starter"); }
+        for (i in 0..kTabs) { SidebarItem(router, i, i == current); }
+    }
+}
+
+// A screen's content, padded; in a wide window, centered at a width that reads well.
+void PageBody(int gap, escaping fn()->void content) {
+    if (ui_wide()) {
+        Row(Style{padding: 32, gap: 0, justify: JustifyCenter}) {
+            Column(Style{grow: 1, max_width: 880, gap: gap}, content);
+        }
+    } else {
+        Column(Style{padding: 20, gap: gap}, content);
+    }
+}
+
 // A tab's screen: it scrolls, starts under the status bar (the app draws edge to edge) and
 // pads its content.
 void Page(escaping fn()->void content) {
     Scroll(Style{grow: 1, gap: 0, background: kit.page}) {
         Row(Style{height: ui_insets().top}) {}
-        Column(Style{padding: 20, gap: 18}, content);
+        PageBody(18, content);
     }
 }
 

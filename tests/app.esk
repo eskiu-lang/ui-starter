@@ -99,6 +99,16 @@ int main() {
     ui_frame();
     check(kit.dark && shows("Saved on this device."), "the dark theme");
 
+    // A wide window: the sections move to a sidebar and the kit's sizes get denser.
+    model.theme.set(ThemeSystem);
+    model.router.reset("/");
+    ui_set_window(Window{1280, 800, 200});
+    ui_frame();
+    check(kit.dense && kit.body_size == 14 && shows("Home") && shows("Make it yours"), "a wide window");
+    ui_set_window(Window{390, 844, 300});
+    ui_frame();
+    check(!kit.dense && kit.body_size == 16, "and a phone's again");
+
     ui_shutdown();
     repos_clear(&model.repos);
     model.repos.free();
