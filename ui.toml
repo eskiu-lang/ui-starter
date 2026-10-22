@@ -1,6 +1,7 @@
-# The app: its name on the home screen, its id (the bundle id on iOS, the package on Android)
-# and the scheme links open it with (starter://packages). Change them for your app.
+# The app: its name on the home screen, its id (the bundle id on iOS, the package on Android),
+# the scheme links open it with (starter://packages) and its icon. Change them for your app.
 [app]
 name = "Starter"
 id = "org.example.starter"
 scheme = "starter"
+icon = "icon.png"

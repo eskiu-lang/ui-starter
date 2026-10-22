@@ -26,7 +26,8 @@ and controls are denser, so the web build looks like a web app.
 
 1. **Use this template** on GitHub (or clone it).
 2. Name the app in `ui.toml`: `name` (on the home screen), `id` (the bundle id and the Android
-   package) and `scheme` (links like `starter://packages` open it). Rename the package in
+   package) and `scheme` (links like `starter://packages` open it). Replace `icon.png` with
+   yours (a square PNG, 1024 × 1024 or larger, drawn to the edges). Rename the package in
    `eskiu.toml` if you like.
 3. Run it, and keep it running while you work:
 
@@ -49,7 +50,8 @@ emscripten for the web, Xcode for iOS and the Android SDK for Android.
 | `src/components/tabs.esk` | The tab bar along the bottom, the sidebar of a wide window, the screens' pages and large titles. |
 | `src/screens/` | Home, Packages (a grid of cards, pull to refresh), a package's screen (a route with a parameter), Settings. |
 | `tests/app.esk` | The JSON parsing, and the app rendered with no device: each screen, a load that works and one that fails, the dark theme. `eskiuc test` runs it. |
-| `ui.toml` | The app's name, id and link scheme. |
+| `ui.toml` | The app's name, id, link scheme and icon. |
+| `icon.png` | The app's icon; the build makes each platform's sizes from it. |
 
 The routes are `/`, `/packages`, `/packages/:name` and `/settings`. On the web they are the
 page's URL, with the browser's back and forward; on the phone, screens that slide in, with the
