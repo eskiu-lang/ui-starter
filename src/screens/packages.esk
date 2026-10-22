@@ -41,7 +41,7 @@ void PackageCard(*Router router, int i) {
             TextWith(Style{font_size: 13, font_weight: 600, color: kit.muted}, stars.data);
         }
         TextWith(Style{font_size: 16, font_weight: 700, color: kit.ink}, name);
-        TextWith(Style{font_size: 13, color: kit.muted}, repo.description.len > 0 ? repo.description.data : "No description");
+        Caption(repo.description.len > 0 ? repo.description.data : "No description");
     }
 }
 
@@ -59,7 +59,7 @@ void PackagesScreen(*Router router) {
                 if (load == LoadFailed) {
                     Card() {
                         TextWith(Style{font_size: 17, font_weight: 700, color: kit.ink}, "Could not load the packages");
-                        TextWith(Style{font_size: 15, color: kit.muted}, model.error.data == null ? "" : model.error.data);
+                        Secondary(model.error.data == null ? "" : model.error.data);
                         KitButton("Try again", VariantPrimary) { model_load_repos(); }
                     }
                 } else if (model.repos.size == 0) {

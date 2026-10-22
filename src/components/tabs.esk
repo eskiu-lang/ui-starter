@@ -55,7 +55,7 @@ void Page(escaping fn()->void content) {
 // A screen's title, large, with an optional line above it.
 void ScreenTitle(string eyebrow, string title) {
     Column(Style{gap: 2}) {
-        if (eyebrow != null) { TextWith(Style{font_size: 15, color: kit.muted}, eyebrow); }
-        TextWith(Style{font_size: 34, font_weight: 800, color: kit.ink}, title);
+        if (eyebrow != null) { Secondary(eyebrow); }
+        Title(title);
     }
 }

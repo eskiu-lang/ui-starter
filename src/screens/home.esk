@@ -38,7 +38,7 @@ void HomeScreen(*Router router) {
             Shortcut(router, "⚙︎", "Settings", "A theme that is saved", "/settings");
         }
         Card() {
-            TextWith(Style{font_size: 18, font_weight: 700, color: kit.ink}, "Make it yours");
+            Heading("Make it yours");
             Step(1, "Name the app and its id in ui.toml");
             Step(2, "Run ui serve: each save shows in a moment");
             Step(3, "Replace the screens in src/screens/");

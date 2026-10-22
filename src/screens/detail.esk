@@ -32,7 +32,7 @@ void DetailScreen(*Router router, string name) {
                     String_format(&stars, "★ %d", repo.stars);
                     Badge(stars.data, TonePrimary);
                 }
-                TextWith(Style{font_size: 16, color: kit.ink}, repo.description.len > 0 ? repo.description.data : "No description.");
+                Body(repo.description.len > 0 ? repo.description.data : "No description.");
             }
             KitButton("Open on GitHub", VariantPrimary) { ui_open_url(url); }
             KitButton("Share", VariantSecondary) { ui_share("An Eskiu package", url); }
