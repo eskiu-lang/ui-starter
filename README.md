@@ -62,8 +62,13 @@ back gesture. A tab resets the stack to its route.
 - Add screens to `src/screens/` and a route for each in `src/app.esk`.
 - Add a device package: [location](https://github.com/eskiu-lang/ui-location),
   [notifications](https://github.com/eskiu-lang/ui-notifications),
-  [camera](https://github.com/eskiu-lang/ui-camera), or
+  [camera](https://github.com/eskiu-lang/ui-camera),
+  [barcode](https://github.com/eskiu-lang/ui-barcode),
+  [pedometer](https://github.com/eskiu-lang/ui-pedometer),
+  [securestore](https://github.com/eskiu-lang/ui-securestore), or
   [your own](https://github.com/eskiu-lang/ui-package-template).
+- Draw: [svg](https://github.com/eskiu-lang/ui-svg) for icons and vector art,
+  [canvas](https://github.com/eskiu-lang/ui-canvas) for sprites drawn every frame.
 - The [ui docs](https://github.com/eskiu-lang/ui/tree/main/docs) cover state, components,
   style and layout, the platform, navigation and native code.
 
