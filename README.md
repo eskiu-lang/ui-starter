@@ -72,6 +72,10 @@ back gesture. A tab resets the stack to its route.
 - The [ui docs](https://github.com/eskiu-lang/ui/tree/main/docs) cover state, components,
   style and layout, the platform, navigation and native code.
 
+## Documentation
+
+Every public function and type, with its documentation, is in the [API reference](docs/api.md).
+
 ## License
 
 MIT
