@@ -3,8 +3,10 @@
 import <ui>;
 import <ui/kit>;
 
+// A section of the app: its route at the root of the stack, its icon and its title.
 struct AppTab { string route; string icon; string title; }
 
+// The number of sections (tabs).
 const int kTabs = 3;
 
 // Each icon ends in U+FE0E, so the platforms draw it as text, in the tab's color, not as an emoji.
@@ -23,6 +25,8 @@ int tab_of(string route) {
     return 0;
 }
 
+// The tab bar: a tab per section, the current one in the theme's color; a tab resets the
+// stack to its route. Under it, room for the home indicator.
 void BottomTabs(*Router router) {
     int current = tab_of(router.path());
     Row(Style{background: kit.surface, border_width: 0, gap: 0, padding: 6}) {

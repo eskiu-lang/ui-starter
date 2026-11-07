@@ -5,6 +5,8 @@ import <list>;
 import <json>;
 import <ui>;
 
+// The theme the user chose: follow the system, always light, or always dark. Saved as its
+// number under the storage key "theme".
 enum ThemeMode { ThemeSystem, ThemeLight, ThemeDark }
 
 // A package of the Eskiu project on GitHub.
@@ -13,6 +15,9 @@ struct Repo { String name; String description; String url; int stars; }
 // Loading the list: not started, in flight, loaded, or failed (with the reason in model.error).
 enum LoadState { LoadIdle, LoadBusy, LoadDone, LoadFailed }
 
+// The app's state: the router, the theme, the load state of the package list, a counter
+// bumped each time the list is replaced, the list itself and the reason of the last failed
+// load.
 struct Model {
     *Router router;
     *Signal<int> theme;
@@ -24,6 +29,8 @@ struct Model {
 
 Model model;
 
+// Creates the router at "/", the theme signal (from the saved choice, else ThemeSystem)
+// and the load signals.
 void model_start() {
     model.router = router_new("/");
     // The theme the user chose last time, or the system's.
@@ -33,6 +40,7 @@ void model_start() {
     model.repos_version = signal_new<int>(0);
 }
 
+// Frees each repository's strings and empties the list (its storage is kept).
 void repos_clear(List<Repo>* repos) {
     for (i in 0..repos.size) {
         String_free(&repos.data[i].name); String_free(&repos.data[i].description); String_free(&repos.data[i].url);
@@ -40,6 +48,7 @@ void repos_clear(List<Repo>* repos) {
     repos.clear();
 }
 
+// Frees everything model_start and the loads made.
 void model_stop() {
     repos_clear(&model.repos);
     model.repos.free();
@@ -50,6 +59,7 @@ void model_stop() {
     model.repos_version.free();
 }
 
+// Switches the theme to `mode` (a ThemeMode) and saves it on the device.
 void model_set_theme(int mode) {
     model.theme.set(mode);
     String text;

@@ -3,6 +3,9 @@ import <string>;
 import <ui>;
 import <ui/kit>;
 
+// The screen of the package `name`: a navigation bar with Back (to the list when the
+// screen was opened by a link), then its name, stars and description with buttons to open
+// it on GitHub and to share it, loading the list first if needed.
 void DetailScreen(*Router router, string name) {
     Column(Style{grow: 1, background: kit.page, gap: 0}) {
         Row(Style{height: ui_insets().top, background: kit.surface}) {}

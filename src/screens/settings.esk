@@ -3,6 +3,8 @@ import <string>;
 import <ui>;
 import <ui/kit>;
 
+// Settings: the theme as a segmented control (saved on the device), and about the app (the
+// platform it runs on, a link to eskiu-lang/ui).
 void SettingsScreen(*Router router) {
     Page() {
         ScreenTitle(null, "Settings");

@@ -2,6 +2,8 @@
 // each change; `ui serve ios` and `ui serve android` do the same on a simulator or device.
 import "app.esk";
 
+// The hosts call it once at launch: the app draws edge to edge, the model starts and the
+// root is mounted.
 void ui_app_start(int which) {
     // Screens draw under the status bar and pad themselves from ui_insets(); the hosts read
     // this before the first frame.
@@ -10,4 +12,5 @@ void ui_app_start(int which) {
     ui_mount() { App(); }
 }
 
+// The hosts call it when the app ends: frees the model.
 void ui_app_stop() { model_stop(); }

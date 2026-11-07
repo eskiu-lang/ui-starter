@@ -19,6 +19,8 @@ void apply_theme() {
     else { kit_follow_system(); }
 }
 
+// The screen for `route`: a package's screen for /packages/:name, Packages, Settings, else
+// Home.
 void Screen(*Router router, string route) {
     // route_param keeps the name as long as the route is on the stack, so the screen's blocks
     // can use it when they render again on their own.
@@ -29,6 +31,8 @@ void Screen(*Router router, string route) {
     else { HomeScreen(router); }
 }
 
+// The root: the theme, the status bar, the router's screens, the bottom tabs (or the
+// sidebar in a wide window) and the toast host.
 void App() {
     apply_theme();
     Column(Style{grow: 1, background: kit.page, gap: 0}) {

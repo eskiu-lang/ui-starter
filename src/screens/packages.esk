@@ -45,6 +45,9 @@ void PackageCard(*Router router, int i) {
     }
 }
 
+// Packages: the repositories as cards, two a row (three in a wide window), pulled again on
+// refresh, with the loading and error states; the list loads the first time the screen
+// shows.
 void PackagesScreen(*Router router) {
     Column(Style{grow: 1, background: kit.page, gap: 0}) {
         int load = model.load.get();
